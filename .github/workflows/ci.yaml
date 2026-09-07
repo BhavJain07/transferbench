@@ -2,10 +2,15 @@ name: CI
 on: [push, pull_request]
 permissions:
   contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   offline:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
+      fail-fast: false
       matrix:
         optional: [core, agentdojo]
     steps:
@@ -23,8 +28,16 @@ jobs:
           uv run --no-sync ruff check .
           uv run --no-sync ruff format --check .
       - name: Offline tests (no provider credentials)
-        run: uv run --no-sync pytest -q
+        run: uv run --no-sync pytest -q --junitxml=results/ci-tests.xml
       - name: End-to-end smoke
         run: uv run --no-sync transferbench smoke --output-root results/ci-smoke
       - name: Build distribution
         run: uv build
+      - name: Preserve test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.optional }}
+          path: results/ci-tests.xml
+          if-no-files-found: warn
+          retention-days: 7
