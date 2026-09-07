@@ -5,6 +5,7 @@ import importlib.metadata
 import json
 import os
 import platform
+import re
 import subprocess
 import tomllib
 from datetime import UTC, datetime
@@ -148,15 +149,31 @@ def read_episodes(path: Path) -> list[Episode]:
 def verify_run(run_dir: Path) -> dict:
     """Verify recorded file integrity before publication or reproducibility review."""
     manifest = json.loads((run_dir / "manifest.json").read_text())
+    if not isinstance(manifest, dict):
+        return {"valid": False, "errors": ["Manifest must be a JSON object"], "publishable": False}
     errors = []
-    for relative, expected in manifest.get("file_hashes", {}).items():
-        path = (run_dir / relative).resolve()
-        if not path.is_relative_to(run_dir.resolve()):
-            errors.append(f"Unsafe provenance path: {relative}")
-        elif not path.is_file() or sha256_file(path) != expected:
-            errors.append(f"Missing or changed: {relative}")
-    if not manifest.get("file_hashes"):
+    hashes = manifest.get("file_hashes", {})
+    if not isinstance(hashes, dict):
+        errors.append("file_hashes must be a mapping of relative paths to SHA-256 digests")
+        hashes = {}
+    if not hashes:
         errors.append("No file integrity records")
+    root = run_dir.resolve()
+    for relative, expected in hashes.items():
+        if not relative or "\0" in relative or Path(relative).is_absolute():
+            errors.append(f"Unsafe provenance path: {relative!r}")
+            continue
+        if not isinstance(expected, str) or re.fullmatch(r"[0-9a-fA-F]{64}", expected) is None:
+            errors.append(f"Invalid SHA-256 digest: {relative}")
+            continue
+        try:
+            path = (root / relative).resolve()
+            if not path.is_relative_to(root):
+                errors.append(f"Unsafe provenance path: {relative}")
+            elif not path.is_file() or sha256_file(path) != expected.lower():
+                errors.append(f"Missing or changed: {relative}")
+        except (OSError, RuntimeError, ValueError) as exc:
+            errors.append(f"Cannot verify {relative!r}: {exc}")
     return {
         "valid": not errors,
         "errors": errors,
