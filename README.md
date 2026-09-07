@@ -6,6 +6,10 @@ Measuring whether AI safety failures and defenses transfer across models and age
 
 > Given a failure discovered on **model A / scaffold X**, what happens on **model B / scaffold Y**?
 
+**Status: early-stage working research prototype.** The harness includes 24 synthetic tasks, four scaffolds, and a reproducible offline demonstration. Cross-provider empirical results are a next milestone, not a claim of this release.
+
+[Quickstart](#quickstart) · [Example report](reports/example/README.md) · [Methodology](docs/methodology.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
+
 ```mermaid
 flowchart TD
     C[Versioned experiment configuration] --> P[Controlled matrix and budget admission]
@@ -37,7 +41,7 @@ uv sync --frozen --python 3.12
 uv run transferbench smoke
 ```
 
-The command prints the results directory and self-contained HTML report. See [`reports/example/README.md`](reports/example/README.md) for the checked-in simulated example. Do not use its rates as evidence of real model safety or substitute an invented pilot matrix into a grant application.
+The command prints the results directory and self-contained HTML report. See [`reports/example/README.md`](reports/example/README.md) for the checked-in simulated example. Its rates demonstrate harness behavior, not real-model safety.
 
 ## Quickstart
 
@@ -69,8 +73,8 @@ The quickstart has **1,080 episodes**: 120 model/scaffold/task/repeat blocks × 
 uv sync --frozen --extra providers
 cp .env.example .env
 # Fill model IDs, API credentials and current conservative token rates locally.
-uv run transferbench matrix configs/experiments/pilot.yaml --dry-run
-uv run transferbench matrix configs/experiments/pilot.yaml --report
+uv run --frozen --extra providers transferbench matrix configs/experiments/pilot.yaml --dry-run
+uv run --frozen --extra providers transferbench matrix configs/experiments/pilot.yaml --report
 ```
 
 Paid execution asks for confirmation. `--yes` enables unattended execution without removing the hard configured-estimate ceiling. **Also set a provider-side billing cap.** See [the cost contract](docs/reproducibility.md#cost-contract); client-side estimates cannot guarantee a provider's invoice.
@@ -106,7 +110,7 @@ uv run transferbench discover configs/reproduce.yaml \
 uv run transferbench matrix results/<discovery-id>/transfer.yaml --report
 ```
 
-Candidate runs use only the source configuration. Winners are ranked on complete source trials, frozen with hashes, then evaluated untouched on both source and targets using disjoint scheduled seeds. Selection scores are not reused as held-out transfer scores. The bundled generator has **three unique templates**, not an unimplemented 50-candidate model-based search. Larger/adaptive generators can implement the async protocol but are not included.
+Candidate runs use only the source configuration. Winners are ranked on complete source trials, frozen with hashes, then evaluated untouched on both source and targets using disjoint scheduled seeds. Selection scores are not reused as held-out transfer scores. The bundled generator provides **three unique synthetic templates per task/family**. Larger or adaptive generators can implement the async protocol but are not included.
 
 To select a static defense from complete C0–C3 source evidence:
 
@@ -136,7 +140,7 @@ Every supported estimate carries its denominator and uncertainty. Wilson interva
 ```sh
 uv sync --frozen --extra agentdojo
 # facts.json maps a supported native task ID to exact facts from its source.
-uv run transferbench agentdojo-export --suite workspace \
+uv run --frozen --extra agentdojo transferbench agentdojo-export --suite workspace \
   --facts facts.json --output tasks/agentdojo-seeds.jsonl
 ```
 
@@ -154,7 +158,7 @@ uv run ruff format --check .
 
 Raw Inspect logs are canonical; every run additionally stores `episodes.parquet`, `manifest.json`, `summary.json`, and exact input/artifact snapshots. Variable nested transcript/tool records are JSON-encoded inside Parquet; scalar outcome columns remain typed. Manifests include Git state, installed dependency versions, lock hash, model versions, estimated costs and file-integrity hashes.
 
-`analyze --publishable` and `report --publishable` fail closed for dirty/uncommitted, unpinned, incomplete, tampered or simulated runs. No Git commits or public repository publication are performed automatically. See [reproducibility and operational limits](docs/reproducibility.md).
+`analyze --publishable` and `report --publishable` fail closed for dirty/uncommitted, unpinned, incomplete, tampered or simulated runs. These checks distinguish empirical evidence from the bundled offline demonstration. See [reproducibility and operational limits](docs/reproducibility.md).
 
 ## Repository guide
 
@@ -165,6 +169,10 @@ Raw Inspect logs are canonical; every run additionally stores `episodes.parquet`
 - `transferbench/runner/`: controls, manifests, source selection and matrix execution.
 - `transferbench/scorers/`, `analysis/`: deterministic outcomes, transfer metrics, bootstrap and reports.
 - `tests/`: zero-provider-call regression and integration coverage, plus optional actual-package seed tests.
+
+## Contributing
+
+Run `make help` to see the development commands. The [contribution guide](CONTRIBUTING.md) explains extension points, offline tests, and evidence requirements. For vulnerabilities in the harness rather than expected synthetic attack outcomes, follow the [security policy](SECURITY.md).
 
 ## Roadmap and limits
 
