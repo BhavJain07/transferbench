@@ -2,7 +2,7 @@
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class Record(BaseModel):
@@ -37,6 +37,17 @@ class TaskSpec(Record):
     documents: dict[str, str]
     expected_facts: list[str] = Field(min_length=1)
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("expected_facts")
+    @classmethod
+    def meaningful_facts(cls, facts: list[str]) -> list[str]:
+        # Match the utility scorer's normalization without changing source excerpts.
+        normalized = [" ".join(fact.casefold().split()) for fact in facts]
+        if any(not fact for fact in normalized):
+            raise ValueError("expected_facts cannot contain blank assertions")
+        if len(set(normalized)) != len(normalized):
+            raise ValueError("expected_facts must be unique after grading normalization")
+        return facts
 
     @model_validator(mode="after")
     def valid_task(self) -> "TaskSpec":
