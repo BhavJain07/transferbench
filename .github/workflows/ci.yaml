@@ -1,0 +1,30 @@
+name: CI
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        optional: [core, agentdojo]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Install Python and locked dependencies
+        run: uv sync --frozen --python 3.12
+      - name: Install optional AgentDojo seeds
+        if: matrix.optional == 'agentdojo'
+        run: uv sync --frozen --python 3.12 --extra agentdojo
+      - name: Lint and formatting
+        run: |
+          uv run --no-sync ruff check .
+          uv run --no-sync ruff format --check .
+      - name: Offline tests (no provider credentials)
+        run: uv run --no-sync pytest -q
+      - name: End-to-end smoke
+        run: uv run --no-sync transferbench smoke --output-root results/ci-smoke
+      - name: Build distribution
+        run: uv build

@@ -1,0 +1,23 @@
+# Stage 1: 4,608 attacked trials + 1,152 unique clean controls = 5,760.
+# Selection/defense/confirmation are separate stages, not one enormous grid.
+experiment:
+  name: screening_v1
+  stage: screening
+  transfer_mode: family
+models: [frontier_a, frontier_b, frontier_c, open_weight_a]
+scaffolds: [chat_single, chat_multi, tool_agent, delegate_agent]
+tasks:
+  suites: [workspace, delegation]
+attacks: [direct, indirect_instruction, persistence, delegation]
+defenses: [none]
+repeats: 3
+seed: 42
+generation:
+  temperature: 0.2
+limits:
+  max_turns: 20
+  max_tokens: 2048
+  max_cost_usd: 500
+  max_episodes: 10000
+include_controls: true
+output_dir: ../results

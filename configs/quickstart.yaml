@@ -1,0 +1,21 @@
+# Offline demonstration; NOT evidence about real model safety.
+experiment:
+  name: quickstart
+  transfer_mode: fixed
+models: [fake_a, fake_b]
+scaffolds: [chat_multi, tool_agent]
+tasks:
+  suites: [workspace]
+  limit: 10
+attacks: [indirect_instruction, multi_turn_conflict]
+defenses: [none, context_separation, tool_policy]
+repeats: 3
+seed: 42
+generation:
+  temperature: 0.2
+limits:
+  max_turns: 20
+  max_tokens: 2048
+  max_cost_usd: 0
+include_controls: true
+output_dir: ../results

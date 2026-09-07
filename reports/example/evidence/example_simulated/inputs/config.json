@@ -1,0 +1,49 @@
+{
+  "attack_artifacts": [],
+  "attacks": [
+    "indirect_instruction"
+  ],
+  "defense_selection": null,
+  "defenses": [
+    "none",
+    "tool_policy"
+  ],
+  "experiment": {
+    "name": "reproduce_simulated",
+    "stage": "evaluation",
+    "transfer_mode": "fixed"
+  },
+  "generation": {
+    "temperature": 0.2
+  },
+  "include_controls": true,
+  "limits": {
+    "max_cost_usd": 0.0,
+    "max_episodes": 20000,
+    "max_tokens": 2048,
+    "max_turns": 20,
+    "timeout_seconds": 120.0
+  },
+  "model_registry": "models.yaml",
+  "models": [
+    "fake_a",
+    "fake_b"
+  ],
+  "monitor_model": null,
+  "output_dir": "../results",
+  "repeats": 2,
+  "scaffolds": [
+    "chat_multi",
+    "tool_agent"
+  ],
+  "seed": 42,
+  "selection_manifest": null,
+  "tasks": {
+    "limit": 2,
+    "paths": null,
+    "suites": [
+      "workspace"
+    ]
+  },
+  "vulnerable_from": null
+}

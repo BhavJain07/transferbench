@@ -1,0 +1,18 @@
+# Real-provider pilot: 480 episodes including matched C0-C3 controls.
+experiment:
+  name: real_pilot
+model_registry: ../models.yaml
+models: [frontier_a, frontier_b]
+scaffolds: [chat_multi, tool_agent]
+tasks:
+  suites: [workspace]
+  limit: 10
+attacks: [indirect_instruction]
+defenses: [none, tool_policy]
+repeats: 3
+seed: 42
+limits:
+  max_turns: 20
+  max_tokens: 2048
+  max_cost_usd: 100
+output_dir: ../../results

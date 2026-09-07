@@ -1,0 +1,17 @@
+# Reproduce a zero-cost simulated subset; real findings require pinned provider IDs.
+experiment:
+  name: reproduce_simulated
+models: [fake_a, fake_b]
+scaffolds: [chat_multi, tool_agent]
+tasks:
+  suites: [workspace]
+  limit: 2
+attacks: [indirect_instruction]
+defenses: [none, tool_policy]
+repeats: 2
+seed: 42
+limits:
+  max_turns: 20
+  max_tokens: 2048
+  max_cost_usd: 0
+output_dir: ../results

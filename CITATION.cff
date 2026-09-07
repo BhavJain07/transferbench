@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "Please cite the exact TransferBench commit and run manifest when reporting results."
+type: software
+title: "TransferBench: a generalization benchmark for AI safety claims"
+authors:
+  - name: "TransferBench contributors"
+version: 0.1.0
+date-released: 2026-09-07
+license: MIT
+abstract: "Measuring transfer of synthetic AI safety failures and defenses across models and agent architectures using Inspect AI."

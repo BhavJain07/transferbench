@@ -1,0 +1,46 @@
+# Prices are deliberate user inputs, not stale hardcoded provider price claims.
+# Set conservative rates covering cache writes/reasoning at the chosen context tier.
+models:
+  fake_a:
+    provider: fake
+    model: vulnerable
+    family: simulated_vulnerable
+    pricing: {input_per_million: 0, output_per_million: 0}
+    supports_seed: true
+    version_pinned: true
+  fake_b:
+    provider: fake
+    model: resistant
+    family: simulated_resistant
+    pricing: {input_per_million: 0, output_per_million: 0}
+    supports_seed: true
+    version_pinned: true
+  frontier_a:
+    provider: anthropic
+    model: ${ANTHROPIC_MODEL}
+    family: anthropic_frontier
+    pricing:
+      input_per_million: ${ANTHROPIC_INPUT_PER_MILLION}
+      output_per_million: ${ANTHROPIC_OUTPUT_PER_MILLION}
+  frontier_b:
+    provider: openai
+    model: ${OPENAI_MODEL}
+    family: openai_frontier
+    pricing:
+      input_per_million: ${OPENAI_INPUT_PER_MILLION}
+      output_per_million: ${OPENAI_OUTPUT_PER_MILLION}
+  frontier_c:
+    provider: google
+    model: ${GOOGLE_MODEL}
+    family: google_frontier
+    pricing:
+      input_per_million: ${GOOGLE_INPUT_PER_MILLION}
+      output_per_million: ${GOOGLE_OUTPUT_PER_MILLION}
+  open_weight_a:
+    provider: vllm
+    model: ${OPEN_MODEL}
+    family: open_weight
+    base_url: ${OPEN_MODEL_BASE_URL}
+    pricing:
+      input_per_million: ${OPEN_INPUT_PER_MILLION}
+      output_per_million: ${OPEN_OUTPUT_PER_MILLION}

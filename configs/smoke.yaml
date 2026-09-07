@@ -1,0 +1,16 @@
+experiment:
+  name: smoke
+models: [fake_a, fake_b]
+scaffolds: [chat_single, chat_multi, tool_agent, delegate_agent]
+tasks:
+  suites: [workspace]
+  limit: 1
+attacks: [indirect_instruction]
+defenses: [none, context_separation, tool_policy, sanitizer]
+repeats: 1
+seed: 42
+limits:
+  max_turns: 20
+  max_tokens: 2048
+  max_cost_usd: 0
+output_dir: ../results
